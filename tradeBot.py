@@ -25,11 +25,12 @@ APPLICATION_NAME = 'Trade Bot'
 
 class Trade:
 
-    def __init__(self,fullname,body,date):
+    def __init__(self,fullname,body,date,confirmed=False):
 
         self.fullname=fullname
         self.body=body
         self.date=datetime.datetime.fromtimestamp(int(date)).strftime('%m/$d/$Y')
+        self.confirmed=confirmed
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -62,6 +63,12 @@ def get_credentials():
 def getLastPostedTradeName(trades):
 
     return(trades[-1].fullname)
+
+def writeMostRecentTrade(file,trades):
+
+    with open(file, 'wb') as f:
+        f.write(convertUnix2DateTime(trades.comments[-1].timestamp) + ' ' + trades.comments[-1].name)
+
 
 def getTrades():
 
