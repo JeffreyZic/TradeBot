@@ -64,11 +64,20 @@ def getLastPostedTradeName(trades):
 
     return(trades[-1].fullname)
 
-def writeMostRecentTrade(file,trades):
+def writeMostRecentCompleted(file,trades):
 
     with open(file, 'wb') as f:
         f.write(convertUnix2DateTime(trades.comments[-1].timestamp) + ' ' + trades.comments[-1].name)
 
+def readMostRecentCompleted(file):
+
+    with open(file, 'rb') as f:
+
+        for line in f:
+            date = line.split(' ')[0]
+            name = line.split(' ')[1]
+
+    return [date,name]
 
 def getTrades():
 
