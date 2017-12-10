@@ -1,6 +1,8 @@
 from __future__ import print_function
 import httplib2
 import os
+import pprint
+import datetime
 
 from apiclient import discovery
 from oauth2client import client
@@ -20,6 +22,14 @@ except ImportError:
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 CLIENT_SECRET_FILE = 'GoogleSheetsTradeSecret.json'
 APPLICATION_NAME = 'Trade Bot'
+
+class Trade:
+
+    def __init__(self,fullname,body,date):
+
+        self.fullname=fullname
+        self.body=body
+        self.date=datetime.datetime.fromtimestamp(int(date)).strftime('%m/$d/$Y')
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -49,7 +59,11 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
+def getLastPostedTradeName(trades):
+
+    return(trades[-1].fullname)
+
+def getTrades():
 
     reddit = praw.Reddit('Trade Bot')
 
@@ -57,9 +71,13 @@ def main():
 
     trades = reddit.submission(id='6y39j2') # Trade thread
     trades.comments.replace_more(limit=None,threshold=0)
-    all_comments = trades.comments
 
-    print(all_comments[0].body)
+    return trades.comments
+
+def convertUnix2DateTime(time):
+    return datetime.datetime.fromtimestamp(int(time)).strftime('%m/$d/$Y')
+
+def main():
 
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
@@ -69,11 +87,13 @@ def main():
                               discoveryServiceUrl=discoveryUrl)
 
     spreadsheetId = '1W7oJecLXON_C-cpCtPNe9sKH5gi55aq3jRQqWqH9jN4'
-    rangeName = 'Class Data!A2:E'
+    rangeName = 'Sheet1!A1:B2'
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     numRows = result.get('values') if result.get('values')is not None else 0
     print('{0} rows retrieved.'.format(numRows));
+
+    getTrades()
 
 if __name__ == '__main__':
     main()
