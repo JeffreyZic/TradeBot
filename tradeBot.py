@@ -79,6 +79,35 @@ def readMostRecentCompleted(file):
 
     return [date,name]
 
+def recordUncomfirmed(file,trades):
+
+    for trade in trades:
+        if trade.confirmed = False:
+
+            with open(file, 'ab') as f:
+                f.append(trade.name)
+
+def getPastUncomfirmedNames(file):
+
+    names = []
+
+    with open(file, 'rb') as f:
+        for line in f:
+            names.append(line)
+
+    return names
+
+def getFullPastUncomfirmed(names):
+
+    trades = getTrades()
+
+    for trade in trades:
+        if trade.name in names:
+
+            tradesToProcess.append(Trade(trade.name,trade.body,trade.timestamp))
+
+    return tradesToProcess
+
 def getTrades():
 
     reddit = praw.Reddit('Trade Bot')
