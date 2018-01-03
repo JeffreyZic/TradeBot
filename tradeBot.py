@@ -64,10 +64,10 @@ def getLastPostedTradeName(trades):
 
     return(trades[-1].fullname)
 
-def writeMostRecentCompleted(file,trades):
+def writeMostRecentCompleted(file,trade):
 
     with open(file, 'wb') as f:
-        f.write(convertUnix2DateTime(trades.comments[-1].timestamp) + ' ' + trades.comments[-1].name)
+        f.write(convertUnix2DateTime(trade.timestamp) + ' ' + trade.name)
 
 def readMostRecentCompleted(file):
 
@@ -79,13 +79,10 @@ def readMostRecentCompleted(file):
 
     return [date,name]
 
-def recordUncomfirmed(file,trades):
+def recordUncomfirmed(file,trade):
 
-    for trade in trades:
-        if trade.confirmed = False:
-
-            with open(file, 'ab') as f:
-                f.append(trade.name)
+    with open(file, 'ab') as f:
+        f.append(trade.name + '\n')
 
 def getPastUncomfirmedNames(file):
 
@@ -108,16 +105,55 @@ def getFullPastUncomfirmed(names):
 
     return tradesToProcess
 
+writeTrade(trade):
+    return
+
 def getTrades():
 
     reddit = praw.Reddit('Trade Bot')
 
     subreddit = reddit.subreddit("orangeandblueleauge")
 
-    trades = reddit.submission(id='6y39j2') # Trade thread
+    trades = reddit.submission(id='7nhrno') # Trade thread 2022
     trades.comments.replace_more(limit=None,threshold=0)
 
     return trades.comments
+
+def findStart(comments):
+
+    mostRecent = readMostRecentCompleted('./mostRecentCompleted')
+    index = 0
+
+
+    for i in range(len(comments)):
+        if comments[i].name == mostRecent[1]:
+            index = i
+
+    return i
+
+def processTrades(commentForest):
+
+    index = findStart(commentForest)
+    commentForest = commentForest[index:]
+
+    length = len(commentForest)
+
+    while length >= 0:
+        post = commentForest[length].body
+
+        for reply in commentForest[length].reply:
+            comfirmed = False
+
+            if 'confirmed' in reply.body:
+                confirmed = True
+
+            if confirmed == False:
+                recordUncomfirmed('./uncomfirmed',commentForest[length])
+            else:
+                writeTrade(comment)
+                writeMostCompleted('./mostRecentCompleted',commentForest[length])
+
+        length = length - 1
 
 def convertUnix2DateTime(time):
     return datetime.datetime.fromtimestamp(int(time)).strftime('%m/$d/$Y')
@@ -136,9 +172,9 @@ def main():
     result = service.spreadsheets().values().get(
         spreadsheetId=spreadsheetId, range=rangeName).execute()
     numRows = result.get('values') if result.get('values')is not None else 0
-    print('{0} rows retrieved.'.format(numRows));
+    #print('{0} rows retrieved.'.format(numRows));
 
-    getTrades()
+    print(getTrades()[0].replies[0].body)
 
 if __name__ == '__main__':
     main()
